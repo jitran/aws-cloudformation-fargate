@@ -19,6 +19,10 @@ Parameters:
     Type: Number
     Default: 80
     Description: What port number the application inside the docker container is binding to
+  HealthCheckPath:
+    Type: String
+    Default: /
+    Description: Container health check path
   ContainerCpu:
     Type: Number
     Default: 256
@@ -88,7 +92,7 @@ Resources:
     Type: AWS::ECS::Service
     DependsOn: LoadBalancerRule
     Properties:
-      ServiceName: !Ref 'ServiceName'
+      #ServiceName: !Ref 'ServiceName'
       Cluster:
         Fn::ImportValue:
           !Join [':', [!Ref 'StackName', 'ClusterName']]
@@ -121,13 +125,13 @@ Resources:
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      HealthCheckIntervalSeconds: 6
-      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: !Ref 'HealthCheckPath'
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
-      HealthyThresholdCount: 2
+      HealthyThresholdCount: 5
       TargetType: ip
-      Name: !Ref 'ServiceName'
+      #Name: !Ref 'ServiceName'
       Port: !Ref 'ContainerPort'
       Protocol: HTTP
       UnhealthyThresholdCount: 2
